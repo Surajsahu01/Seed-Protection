@@ -52,10 +52,10 @@ export const getAllSensorData = async (req, res) => {
 };
 
 // CRON JOB: Every 5 minutes
-cron.schedule("*/5 * * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   try {
     const end = moment.tz("Asia/Kolkata");
-    const start = end.clone().subtract(5, "minutes");
+    const start = end.clone().subtract(1, "hour");
 
     const data = await SensorData.find({
       createdAt: {
@@ -81,8 +81,8 @@ cron.schedule("*/5 * * * *", async () => {
     }
 
     const avg = {
-      temperature: total.temperature / data.length,
-      humidity: total.humidity / data.length,
+      temperature: Math.round(total.temperature / data.length),
+      humidity: Math.round(total.humidity / data.length),
       waterDetected: Math.round(total.waterDetected / data.length), // optional: make it 0 or 1
       flameDetected: total.flameDetected,
       timestamp: start.toDate(),
@@ -97,8 +97,19 @@ cron.schedule("*/5 * * * *", async () => {
 
 export const getFiveMinuteAverage = async (req, res) => {
   try {
-    const data = await HourlyAverage.find().sort({ createdAt: -1 }).limit(1);
-    res.status(200).json(data[0] || {});
+    const {startDate, endDate} = req.query;
+
+    const filter = {};
+    if (startDate && endDate) {
+      filter.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+    const data = await HourlyAverage.find(filter).sort({ createdAt: -1 }).limit(100);
+    // const data = await HourlyAverage.find().sort({ createdAt: -1 }).limit(1);
+    // res.status(200).json(data[0] || {});
+    res.status(200).json(data);
   }
   catch (err) {
     res.status(500).json({ error: "Server error" });
