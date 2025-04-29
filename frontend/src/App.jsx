@@ -12,6 +12,8 @@ import ControlPanel from './page/ControlPanel';
 import DashboardWrapper from './page/DashboardWrapper';
 import Cookies from "js-cookie";
 import AOS from 'aos';
+import AverageData from './page/averageData';
+
 
 function App() {
   const token = Cookies.get("auth_token");
@@ -35,6 +37,8 @@ function App() {
           <Route path="/control" element={<ControlPanel />} />
           <Route path="/historical" element={<HistoricalData />} />
           <Route path="/alert" element={<Alert />} />
+          <Route path="/average-data" element={<AverageData />} />
+
         </Routes>
         <Footer />
       </ThemeProvider>

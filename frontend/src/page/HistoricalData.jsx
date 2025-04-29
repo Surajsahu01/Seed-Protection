@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import axios from "axios";
 import { API_BASE_URL } from '../Utils/util';
+import { Link } from 'react-router-dom';
 
 // import api from '../services/api'; // For later real DB fetch
 
@@ -23,6 +24,8 @@ const HistoricalData = () => {
     const fetchSensorData = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/sensor/history`); // Adjust URL as needed
+        console.log("data", response.data);
+        
         let data = response.data.map(entry => ({
           ...entry,
           timestamp: entry.createdAt || entry.time || entry.timestamp, // adjust field as needed
@@ -75,8 +78,15 @@ const HistoricalData = () => {
   const paginatedLogs = filteredLogs.slice((page - 1) * rowsPerPage, page * rowsPerPage);
   return (
     <Box p={4}>
-      <Typography variant="h4" gutterBottom>📚 Historical Data</Typography>
-
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <Typography variant="h4" gutterBottom>📚 Live All Data</Typography>
+      {/* <Link to={'/average'} className='bg-blue-500 rounded-full p-4 text-white'>Avarage Data</Link> */}
+      <Link to="/average-data" style={{ textDecoration: 'none' }}>
+            <Button variant="contained" color="secondary" >
+              View Average Data
+            </Button>
+          </Link>
+      </div>
       {/* Filters */}
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={3}>
         <TextField
