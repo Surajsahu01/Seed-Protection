@@ -35,7 +35,7 @@ const Navbar = () => {
         <Link to="/about" className="hover:text-gray-200 mt-2">About</Link>
         <Link to="/dashboard" className="hover:text-gray-200 mt-2">Dashboard</Link>
         <Link to="/control" className="hover:text-gray-200 mt-2">Control</Link>
-        <Link to="/historical" className="hover:text-gray-200 mt-2">Historical</Link>
+        <Link to="/historical" className="hover:text-gray-200 mt-2">Live Data Report</Link>
         {tokenExists && (
             <button
               onClick={handleRemoveNumber}
@@ -89,7 +89,7 @@ const Navbar = () => {
           to="/historical"
           className="block hover:text-gray-400"
           onClick={() => setMenuOpen(false)}
-        >Historical</Link>
+        >Live Data Report</Link>
 
 
           {tokenExists && (
