@@ -153,7 +153,7 @@ const HistoricalData = () => {
         <CSVLink data={filteredLogs} filename="Historical_Data.csv" style={{ textDecoration: 'none' }}>
           <Button variant="outlined">Download CSV</Button>
         </CSVLink>
-        {/* <Button variant="outlined" onClick={downloadPDF}>Download PDF</Button> */}
+        
       </Box>
     </Box>
   )
