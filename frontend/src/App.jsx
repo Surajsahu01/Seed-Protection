@@ -12,7 +12,7 @@ import ControlPanel from './page/ControlPanel';
 import DashboardWrapper from './page/DashboardWrapper';
 import Cookies from "js-cookie";
 import AOS from 'aos';
-import AverageData from './page/averageData';
+import AverageData from './page/AverageData';
 
 
 function App() {
