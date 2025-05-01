@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, TextField, Pagination, Stack
+  Paper, Button, TextField, Pagination, Stack, CircularProgress
 } from '@mui/material';
 import { CSVLink } from 'react-csv';
-import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import axios from "axios";
 import { API_BASE_URL } from '../Utils/util';
@@ -15,6 +14,7 @@ const AverageData = () => {
   const [logs, setLogs] = useState([]);
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -33,8 +33,10 @@ const AverageData = () => {
         data = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 1000);
         setLogs(data);
         setFilteredLogs(data); // Initialize filtered logs with all logs
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching sensor data:', error);
+        setLoading(false);
       }
     };
     fetchSensorData();
@@ -52,24 +54,6 @@ const AverageData = () => {
     });
     setFilteredLogs(filtered);
     setPage(1);
-  };
-
-  const downloadPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Historical Sensor Data', 14, 16);
-    const tableData = filteredLogs.map((log, i) => [
-      i + 1, 
-      log.timestamp, 
-      log.temperature, 
-      log.humidity,
-      log.flameDetected ? 'Yes' : 'No',
-      log.rainDetected ? 'Yes' : 'No'
-    ]);
-    doc.autoTable({
-      head: [['#', 'Timestamp', 'Temp (°C)', 'Humidity (%)', 'Flame', 'Rain']],
-      body: tableData,
-    });
-    doc.save('historical_data.pdf');
   };
 
   const paginatedLogs = filteredLogs.slice((page - 1) * rowsPerPage, page * rowsPerPage);
@@ -97,6 +81,15 @@ const AverageData = () => {
         <Button variant="contained" onClick={handleFilter}>Filter</Button>
       </Stack>
 
+      {/* Loading indicator */}
+
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" mt={5}>
+          <CircularProgress />
+        </Box>
+      ) : (
+
+        <>
       {/* Table */}
       <TableContainer component={Paper}>
         <Table>
@@ -144,8 +137,9 @@ const AverageData = () => {
         <CSVLink data={filteredLogs} filename="Historical_Data.csv" style={{ textDecoration: 'none' }}>
           <Button variant="outlined">Download CSV</Button>
         </CSVLink>
-        {/* <Button variant="outlined" onClick={downloadPDF}>Download PDF</Button> */}
       </Box>
+      </>
+      )}
     </Box>
   )
 }
