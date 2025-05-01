@@ -7,6 +7,8 @@ import {
   DialogActions,
   Button,
   Typography,
+  CircularProgress,
+  Box,
 } from "@mui/material";
 import axios from "axios";
 import { API_BASE_URL } from "../Utils/util";
@@ -17,6 +19,7 @@ import { useNavigate } from "react-router-dom"; // ✅
 export default function PhoneNumberPopup({ onSuccess }) {
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // 🔄 loading state
   const navigate = useNavigate();
 
 
@@ -26,6 +29,10 @@ export default function PhoneNumberPopup({ onSuccess }) {
       setError("Please enter a valid phone number with country code.");
       return;
     }
+
+    setLoading(true); // start loading
+
+
     try {
       const res = await axios.post(`${API_BASE_URL}/api/user/phone`, { phone });
       const token = res.data.token;
@@ -38,13 +45,15 @@ export default function PhoneNumberPopup({ onSuccess }) {
         onSuccess(); // optional — still call it
       } // show dashboard
 
-      window.location.reload(); // reload the page to show the dashboard
-
+    
       navigate("/dashboard"); // or navigate to the dashboard directly
+      window.location.reload(); // reload the page to show the dashboard
     } catch (error) {
       setError("Failed to save number. Please try again.");
-      console.error("Error saving number:", error);
-      
+      console.error("Error saving number:", error);  
+    } 
+    finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -70,9 +79,27 @@ export default function PhoneNumberPopup({ onSuccess }) {
       )}
     </DialogContent>
     <DialogActions>
-      <Button onClick={handleSubmit} variant="contained">
-        Submit & Continue
-      </Button>
+    <Box position="relative">
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            disabled={loading}
+          >
+            Submit & Continue
+          </Button>
+          {loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                marginTop: "-12px",
+                marginLeft: "-12px",
+              }}
+            />
+          )}
+        </Box>
     </DialogActions>
   </Dialog>
   );
