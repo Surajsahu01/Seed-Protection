@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, TextField, Pagination, Stack
+  Paper, Button, TextField, Pagination, Stack, CircularProgress
 } from '@mui/material';
 import { CSVLink } from 'react-csv';
-import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import axios from "axios";
 import { API_BASE_URL } from '../Utils/util';
@@ -17,6 +16,7 @@ const HistoricalData = () => {
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const rowsPerPage = 10;
 
   // Dummy fetch for now
@@ -24,7 +24,7 @@ const HistoricalData = () => {
     const fetchSensorData = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/sensor/history`); // Adjust URL as needed
-        console.log("data", response.data);
+        // console.log("data", response.data);
         
         let data = response.data.map(entry => ({
           ...entry,
@@ -36,8 +36,10 @@ const HistoricalData = () => {
         data = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 1000);
         setLogs(data);
         setFilteredLogs(data); // Initialize filtered logs with all logs
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching sensor data:', error);
+        setLoading(false);
       }
     };
     fetchSensorData();
@@ -57,23 +59,23 @@ const HistoricalData = () => {
     setPage(1);
   };
 
-  const downloadPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Historical Sensor Data', 14, 16);
-    const tableData = filteredLogs.map((log, i) => [
-      i + 1, 
-      log.timestamp, 
-      log.temperature, 
-      log.humidity,
-      log.flameDetected ? 'Yes' : 'No',
-      log.rainDetected ? 'Yes' : 'No'
-    ]);
-    doc.autoTable({
-      head: [['#', 'Timestamp', 'Temp (°C)', 'Humidity (%)', 'Flame', 'Rain']],
-      body: tableData,
-    });
-    doc.save('historical_data.pdf');
-  };
+  // const downloadPDF = () => {
+  //   const doc = new jsPDF();
+  //   doc.text('Historical Sensor Data', 14, 16);
+  //   const tableData = filteredLogs.map((log, i) => [
+  //     i + 1, 
+  //     log.timestamp, 
+  //     log.temperature, 
+  //     log.humidity,
+  //     log.flameDetected ? 'Yes' : 'No',
+  //     log.rainDetected ? 'Yes' : 'No'
+  //   ]);
+  //   doc.autoTable({
+  //     head: [['#', 'Timestamp', 'Temp (°C)', 'Humidity (%)', 'Flame', 'Rain']],
+  //     body: tableData,
+  //   });
+  //   doc.save('historical_data.pdf');
+  // };
 
   const paginatedLogs = filteredLogs.slice((page - 1) * rowsPerPage, page * rowsPerPage);
   return (
@@ -106,6 +108,15 @@ const HistoricalData = () => {
         <Button variant="contained" onClick={handleFilter}>Filter</Button>
       </Stack>
 
+
+      {/* Loading Indicator */}
+
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" mt={5}>
+          <CircularProgress />
+          </Box>
+      ) : (
+        <>  
       {/* Table */}
       <TableContainer component={Paper}>
         <Table>
@@ -153,8 +164,10 @@ const HistoricalData = () => {
         <CSVLink data={filteredLogs} filename="Historical_Data.csv" style={{ textDecoration: 'none' }}>
           <Button variant="outlined">Download CSV</Button>
         </CSVLink>
-        
+        {/* <Button variant="outlined" onClick={downloadPDF}>Download PDF</Button> */}
       </Box>
+      </>
+      )}
     </Box>
   )
 }
